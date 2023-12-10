@@ -3,6 +3,8 @@ import sys
 import os
 import pickle
 import pyperclip
+
+USE_COPY_TO_CLIPBOARD = False
 OPENAI_KEY = "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"
 
 client = OpenAI(api_key=OPENAI_KEY)
@@ -40,10 +42,11 @@ def ask(message):
     response_txt = response.choices[0].message.content
     
     print(response.choices[0].message.content)
-    is_multi_line = response_txt.count('\n') > 1
-    if not is_multi_line:
-        pyperclip.copy(response_txt)
-        print("<copied to clipboard>")
+    if USE_COPY_TO_CLIPBOARD:
+        is_multi_line = response_txt.count('\n') > 1
+        if not is_multi_line:
+            pyperclip.copy(response_txt)
+            print("<copied to clipboard>")
 
 
 if __name__ == '__main__':
