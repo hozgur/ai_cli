@@ -2,6 +2,7 @@ from openai import OpenAI
 import sys
 import os
 import pickle
+import pyperclip
 OPENAI_KEY = "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"
 
 client = OpenAI(api_key=OPENAI_KEY)
@@ -12,7 +13,7 @@ last_message_file = os.path.join(path, "last_message.pkl")
 def ask(message):
 
     messages=[
-        {"role": "system", "content": "You are cli command creator for linux and mac. keep description short and simple."},
+        {"role": "system", "content": "You are cli command creator for linux and mac. If you need to add description keep description short and simple. otherwise only command no description."},
         {"role": "user", "content": "delete png files on my ~/images folder"},
         {"role": "assistant", "content": "rm  ~/images/*.png"},
         {"role": "user", "content": "show me my external ip"},
@@ -36,7 +37,13 @@ def ask(message):
     with open(last_message_file, "wb") as f:
         pickle.dump(last_message, f)
         pickle.dump(last_response, f)
+    response_txt = response.choices[0].message.content
+    
     print(response.choices[0].message.content)
+    is_multi_line = response_txt.count('\n') > 1
+    if not is_multi_line:
+        pyperclip.copy(response_txt)
+        print("<copied to clipboard>")
 
 
 if __name__ == '__main__':
