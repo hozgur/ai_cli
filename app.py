@@ -2,7 +2,6 @@ from openai import OpenAI
 import sys
 import os
 import pickle
-import pyperclip
 
 USE_COPY_TO_CLIPBOARD = False
 OPENAI_KEY = "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"
@@ -30,7 +29,7 @@ def ask(message):
 
     messages.append({"role": "user", "content": message})
     response = client.chat.completions.create(
-    model="gpt-3.5-turbo",
+    model="gpt-4-turbo",
     messages=messages,
     )
     last_message  = {"role": "user", "content": message}
@@ -42,12 +41,6 @@ def ask(message):
     response_txt = response.choices[0].message.content
     
     print(response.choices[0].message.content)
-    if USE_COPY_TO_CLIPBOARD:
-        is_multi_line = response_txt.count('\n') > 1
-        if not is_multi_line:
-            pyperclip.copy(response_txt)
-            print("<copied to clipboard>")
-
 
 if __name__ == '__main__':
     argc = len(sys.argv)
