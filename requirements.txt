@@ -1,3 +1,4 @@
 openai
 pickle
-pyperclip
+colorama
+python-dotenv
