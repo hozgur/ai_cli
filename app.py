@@ -4,6 +4,7 @@ import sys
 import os
 import pickle
 import platform
+import subprocess
 from dotenv import load_dotenv
 from colorama import init, Fore, Style
 
@@ -92,16 +93,28 @@ def ask(message):
     if response.description:
         print(f"Description: {response.description}")
     if response.command:
-        print(f"Command: {Fore.CYAN}{response.command}")    
+        print(f"Command: {Fore.CYAN}{response.command}")
+        #save the command to a file
+        if os_name == "Windows":
+            with open("last_command.bat", "w") as f:
+                f.write(response.command)
+        else:
+            with open("last_command.sh", "w") as f:
+                f.write(response.command)
     # Ask the user if they want to run the command
     run_choice = input(Fore.GREEN + "Run this command? (Y/N, press Enter for Yes): "+Fore.RESET).strip().lower()
 
     if response.command:
-        if run_choice in ['y', '']:        
-            os.system(response.command)
+        if run_choice in ['y', '']:                    
+            try:
+                # Use subprocess to run the command
+                result = subprocess.run(response.command, shell=True, check=True, text=True)
+                print(Fore.GREEN + "Command executed successfully.")
+            except subprocess.CalledProcessError as e:
+                print(Fore.RED + f"Command failed with error: {e}")
         else:
-            print("Command not executed.")
-
+            print(Fore.RED + "Command not executed.")
+        
 if __name__ == '__main__':
     argc = len(sys.argv)
     if argc < 2:
