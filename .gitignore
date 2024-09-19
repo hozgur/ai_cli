@@ -1,5 +1,5 @@
 *.pkl
-config.json
+*.json
 last_command.*
 *.mp3
 # Byte-compiled / optimized / DLL files
