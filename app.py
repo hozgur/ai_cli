@@ -113,8 +113,11 @@ def usage():
     print(Fore.GREEN + "If you want to run the last command, run:" + Fore.CYAN + " ask run" + Fore.GREEN)
     print(Fore.GREEN + "If you want to see the last command, run:" + Fore.CYAN + " ask last" + Fore.GREEN)
     print(Fore.GREEN + "If you want to see the usage, run:" + Fore.CYAN + " ask help" + Fore.GREEN)
-    print(Fore.GREEN + "If you want to see the version, run:" + Fore.CYAN + " ask version" + Fore.RESET + "\n")
-    print(Fore.GREEN + "If you want to see current model, run:" + Fore.CYAN + " ask model" + Fore.RESET)
+    print(Fore.GREEN + "If you want to see the version, run:" + Fore.CYAN + " ask version")
+    print(Fore.GREEN + "If you want to see current model, run:" + Fore.CYAN + " ask model")
+    print(Fore.GREEN + "If you want to see available models, run:" + Fore.CYAN + " ask models")
+    print(Fore.GREEN + "If you want to change the model, run:" + Fore.CYAN + " ask --model [model_name]" + Fore.RESET)
+    
 
 def list_available_models():
     try:
