@@ -70,8 +70,7 @@ class Response(BaseModel):
     command: str
     description: str
 
-def ask(message):
-    
+def ask(message):    
     messages=[
         {"role": "system", "content": system_prompt},
         {"role": "user", "content": "delete png files on my ~/images folder"},
@@ -109,17 +108,12 @@ def ask(message):
         print(f"Description: {response.description}")
     if response.command:
         print(f"Command: {Fore.CYAN}{response.command}")
-        #save the command to a file
+        #save the command to a file                
+        with open(last_command_path, "w") as f:
+            f.write(response.command)
         
-        if os_name == "Windows":
-            with open(last_command_path, "w") as f:
-                f.write(response.command)
-        else:
-            with open(last_command_path, "w") as f:
-                f.write(response.command)
     # Ask the user if they want to run the command
     run_choice = input(Fore.GREEN + "Run this command? (Y/N, press Enter for Yes): "+Fore.RESET).strip().lower()
-
     if response.command:
         if run_choice in ['y', '']:                    
             try:
