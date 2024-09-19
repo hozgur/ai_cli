@@ -3,11 +3,12 @@ from pydantic import BaseModel
 import sys
 import os
 import pickle
+import json
 import platform
 import subprocess
 from dotenv import load_dotenv
 from colorama import init, Fore, Style
-
+import openai
 load_dotenv()
 # Load the API key from the .env file
 OPENAI_KEY = os.getenv("OPENAI_KEY")
@@ -45,6 +46,20 @@ if os_display_name is None:
     print(f"Unsupported OS: {os_name}")
     sys.exit(1)
 
+last_command_path = ""
+if os_name == "Windows":
+    last_command_path = os.path.join(path, "last_command.bat")
+else:
+    last_command_path = os.path.join(path, "last_command.sh")
+
+config_path = os.path.join(path, "config.json")
+
+config = {}
+if os.path.exists(config_path):
+    with open(config_path, "r") as f:
+        config = json.load(f)
+
+model = config.get("model", "gpt-4o-2024-08-06")
 # Initialize colorama for colored output
 init(autoreset=True)
 
@@ -76,7 +91,7 @@ def ask(message):
     messages.append({"role": "user", "content": message})
     # Call the OpenAI API
     api_response = client.beta.chat.completions.parse(
-        model="gpt-4o-2024-08-06",
+        model=model,
         messages=messages,
         response_format=Response
     )
@@ -95,11 +110,12 @@ def ask(message):
     if response.command:
         print(f"Command: {Fore.CYAN}{response.command}")
         #save the command to a file
+        
         if os_name == "Windows":
-            with open("last_command.bat", "w") as f:
+            with open(last_command_path, "w") as f:
                 f.write(response.command)
         else:
-            with open("last_command.sh", "w") as f:
+            with open(last_command_path, "w") as f:
                 f.write(response.command)
     # Ask the user if they want to run the command
     run_choice = input(Fore.GREEN + "Run this command? (Y/N, press Enter for Yes): "+Fore.RESET).strip().lower()
@@ -115,15 +131,81 @@ def ask(message):
         else:
             print(Fore.RED + "Command not executed.")
         
+
+def usage():
+    print(Fore.GREEN + "Usage: ask [message]")
+    print(Fore.GREEN + "Example: ask 'delete png files on my ~/images folder'")
+    print(Fore.GREEN + "If you want to reset the last message and response, run:" + Fore.CYAN + " ask new" + Fore.GREEN )
+    print(Fore.GREEN + "If you want to run the last command, run:" + Fore.CYAN + " ask run" + Fore.GREEN)
+    print(Fore.GREEN + "If you want to see the last command, run:" + Fore.CYAN + " ask last" + Fore.GREEN)
+    print(Fore.GREEN + "If you want to see the usage, run:" + Fore.CYAN + " ask help" + Fore.GREEN)
+    print(Fore.GREEN + "If you want to see the version, run:" + Fore.CYAN + " ask version" + Fore.RESET + "\n")
+    print(Fore.GREEN + "If you want to see current model, run:" + Fore.CYAN + " ask model" + Fore.RESET)
+
+def list_available_models():
+    try:
+        models = openai.models.list()
+        model_names = [model.id for model in models]  # Extract model names
+        return model_names
+    except Exception as e:
+        print(f"Error fetching models: {e}")
+        return []
+
 if __name__ == '__main__':
     argc = len(sys.argv)
     if argc < 2:
-        message = "hello"
+        usage()
+        exit()
     if argc == 2:
         message = sys.argv[1]
         if message == "new":
             os.remove(last_message_file)
             print("reseted")
+            exit()
+        if message == "run":
+            if os.path.exists(last_command_path):
+                with open(last_command_path, "r") as f:
+                    command = f.read()
+                    print(Fore.CYAN + "Command: " + command)
+                    result = subprocess.run(command, shell=True, check=True, text=True)
+                    print(Fore.GREEN + "Command executed successfully.")
+            else:
+                print(Fore.RED + "No last command found.")
+            exit()
+        if message == "help":
+            usage()
+            exit()
+        if message == "version":
+            print(Fore.GREEN + "ask version 1.0.0")
+            exit()
+        if message == "last":
+            if os.path.exists(last_command_path):
+                with open(last_command_path, "r") as f:
+                    command = f.read()
+                    print(Fore.CYAN + "Command: " + command)                    
+            else:
+                print(Fore.RED + "No last command found.")
+            exit()
+        if message == "model":
+            print(Fore.CYAN + "Current model: " + model)
+            exit()
+        if message == "models":
+            print(Fore.CYAN + "Available models: ")
+            for m in list_available_models():
+                print(Fore.CYAN + "Model: " + m)
+            exit()        
+    if  argc == 3:
+        message = sys.argv[1]
+        if message == "--model":
+            new_model = sys.argv[2]
+            if new_model in list_available_models():                
+                model = new_model
+                config["model"] = model
+                with open(config_path, "w") as f:
+                    json.dump(config, f)
+                print(Fore.CYAN + "Model set to: " + model)
+            else:
+                print(Fore.RED + "Model not found.")
             exit()
     if argc > 2:
         message = sys.argv[1]
