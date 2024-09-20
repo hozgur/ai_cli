@@ -74,19 +74,22 @@ def ask(message):
         with open(last_message_file, "r") as f:
             last_data = json.load(f)
             messages.extend([last_data["last_message"], last_data["last_response"]])
-
+            
+    messages.append({"role": "user", "content": message})
     # Call the OpenAI API
     api_response = client.beta.chat.completions.parse(
         model=model,
         messages=messages,
         response_format=Response
     )
+    
+
     response = api_response.choices[0].message.parsed
 
     # Save the last message and response to the file
     last_data = {
         "last_message": {"role": "user", "content": message},
-        "last_response": {"role": "assistant", "content": response.command + " " + response.description}
+        "last_response": {"role": "assistant", "content": response.command + " Description: " + response.description}
     }
     with open(last_message_file, "w") as f:
         json.dump(last_data, f)
