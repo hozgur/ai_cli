@@ -77,11 +77,15 @@ def ask(message):
             
     messages.append({"role": "user", "content": message})
     # Call the OpenAI API
-    api_response = client.beta.chat.completions.parse(
-        model=model,
-        messages=messages,
-        response_format=Response
-    )
+    try:
+        api_response = client.beta.chat.completions.parse(
+            model=model,
+            messages=messages,
+            response_format=Response
+        )
+    except openai.OpenAIError as e:
+        print(Fore.RED + f"OpenAI API error: {e}")
+        sys.exit(1)
     
 
     response = api_response.choices[0].message.parsed
