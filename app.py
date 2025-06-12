@@ -12,7 +12,18 @@ from pydantic import BaseModel
 # Load environment variables
 load_dotenv()
 
+# Declare client as a global variable
+client = None
 
+def init_client():
+    global client
+    # Load the API key from the .env file
+    OPENAI_KEY = os.getenv("OPENAI_KEY")
+    if not OPENAI_KEY:
+        print(Fore.RED + "Error: OPENAI_KEY is not set in the .env file.")
+        sys.exit(1)
+    # Initialize OpenAI client
+    client = OpenAI(api_key=OPENAI_KEY)
 
 # Initialize colorama for colored output
 init(autoreset=True)
@@ -58,14 +69,7 @@ def run_command(command):
         print(Fore.RED + f"Command failed with error: {e}")
 
 def ask(message):
-    # Load the API key from the .env file
-    OPENAI_KEY = os.getenv("OPENAI_KEY")
-    if not OPENAI_KEY:
-        print(Fore.RED + "Error: OPENAI_KEY is not set in the .env file.")
-        sys.exit(1)
-
-    # Initialize OpenAI client
-    client = OpenAI(api_key=OPENAI_KEY)    
+    init_client()  # Ensure client is initialized
     messages = [
         {"role": "system", "content": system_prompt},
         {"role": "user", "content": message}
@@ -120,8 +124,8 @@ def usage():
     print(Fore.GREEN + "Usage: ask [message]")
     print(Fore.GREEN + "Example: ask 'delete png files on my ~/images folder'")
     print(Fore.GREEN + "If you want to reset the last message and response, run:" + Fore.CYAN + " ask new" + Fore.GREEN)
-    print(Fore.GREEN + "If you want to run the last command, run:" + Fore.CYAN + " ask run" + Fore.GREEN)
-    print(Fore.GREEN + "If you want to see the last command, run:" + Fore.CYAN + " ask last" + Fore.GREEN)
+    print(Fore.GREEN + "If you want to run the a command from command history, run:" + Fore.CYAN + " ask run [command_number]" + Fore.GREEN)
+    print(Fore.GREEN + "If you want to see the command history, run:" + Fore.CYAN + " ask last" + Fore.GREEN)
     print(Fore.GREEN + "If you want to see the usage, run:" + Fore.CYAN + " ask help" + Fore.GREEN)
     print(Fore.GREEN + "If you want to see the version, run:" + Fore.CYAN + " ask version")
     print(Fore.GREEN + "If you want to see current model, run:" + Fore.CYAN + " ask model")
@@ -130,6 +134,7 @@ def usage():
     print(Fore.GREEN + "If you want to set OpenAI API key, run:" + Fore.CYAN + " ask set-key [openai_key]" + Fore.RESET)
 
 def list_available_models():
+    init_client()  # Ensure client is initialized
     try:
         models = client.models.list()
         return [model.id for model in models]
