@@ -125,8 +125,8 @@ def usage():
     print(Fore.GREEN + "If you want to see the version, run:" + Fore.CYAN + " ask version")
     print(Fore.GREEN + "If you want to see current model, run:" + Fore.CYAN + " ask model")
     print(Fore.GREEN + "If you want to see available models, run:" + Fore.CYAN + " ask models")
-    print(Fore.GREEN + "If you want to change the model, run:" + Fore.CYAN + " ask --model [model_name]" + Fore.RESET)
-    
+    print(Fore.GREEN + "If you want to change the model, run:" + Fore.CYAN + " ask --model [model_name]")
+    print(Fore.GREEN + "If you want to set OpenAI API key, run:" + Fore.CYAN + " ask set-key [openai_key]" + Fore.RESET)
 
 def list_available_models():
     try:
