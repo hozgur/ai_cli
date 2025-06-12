@@ -31,7 +31,8 @@ path = os.path.dirname(os.path.realpath(__file__))
 last_message_file = os.path.join(path, "last_message.json")
 config_path = os.path.join(path, "config.json")
 last_command_path = os.path.join(path, "last_command.bat" if platform.system() == "Windows" else "last_command.sh")
-
+command_history_path = os.path.join(path, "command_history.json")
+env_file_path = os.path.join(path,".env")
 # Load configuration
 config = {}
 if os.path.exists(config_path):
@@ -105,6 +106,7 @@ def ask(message):
         print(f"Command: {Fore.CYAN}{response.command}")
         with open(last_command_path, "w") as f:
             f.write(response.command)
+        update_command_history(response.command)
 
     # Ask the user if they want to run the command
     run_choice = input(Fore.GREEN + "Run this command? (Y/N, press Enter for Yes): " + Fore.RESET).strip().lower()
@@ -134,6 +136,16 @@ def list_available_models():
         print(f"Error fetching models: {e}")
         return []
 
+def update_command_history(command):
+    history = []
+    if os.path.exists(command_history_path):
+        with open(command_history_path, "r") as f:
+            history = json.load(f)
+    history.append(command)
+    history = history[-10:]  # Keep last 10 commands
+    with open(command_history_path, "w") as f:
+        json.dump(history, f, indent=2)
+
 def main():
     argc = len(sys.argv)
     if argc < 2:
@@ -144,9 +156,13 @@ def main():
         if message == "new":
             if os.path.exists(last_message_file):
                 os.remove(last_message_file)
-            print("reseted")
+            if os.path.exists(last_command_path):
+                os.remove(last_command_path)
+            if os.path.exists(command_history_path):
+                os.remove(command_history_path)
+            print("all cleared.")
             exit()
-        if message == "run":
+        if message == ("run"):
             if os.path.exists(last_command_path):
                 with open(last_command_path, "r") as f:
                     command = f.read()
@@ -155,6 +171,7 @@ def main():
             else:
                 print(Fore.RED + "No last command found.")
             exit()
+
         if message == "help":
             usage()
             exit()
@@ -162,13 +179,19 @@ def main():
             print(Fore.GREEN + "ask version 1.0.0")
             exit()
         if message == "last":
-            if os.path.exists(last_command_path):
-                with open(last_command_path, "r") as f:
-                    command = f.read()
-                    print(Fore.CYAN + "Command: " + command)
+            if os.path.exists(command_history_path):
+                with open(command_history_path, "r") as f:
+                    history = json.load(f)
+                    if history:
+                        print(Fore.YELLOW + "Last 10 commands:")
+                        for i, cmd in enumerate(history, 1):
+                            print(f"  {i}. {cmd}")
+                    else:
+                        print(Fore.RED + "Command history is empty.")
             else:
-                print(Fore.RED + "No last command found.")
-            exit()
+                print(Fore.RED + "No command history found.")
+            return
+            
         if message == "model":
             print(Fore.CYAN + "Current model: " + model)
             exit()
@@ -177,17 +200,43 @@ def main():
             for m in list_available_models():
                 print(Fore.CYAN + "Model: " + m)
             exit()
-    if argc == 3 and message == "--model":
-        new_model = sys.argv[2]
-        if new_model in list_available_models():
-            model = new_model
-            config["model"] = model
-            with open(config_path, "w") as f:
-                json.dump(config, f)
-            print(Fore.CYAN + "Model set to: " + model)
-        else:
-            print(Fore.RED + "Model not found.")
-        exit()
+
+    if argc == 3:
+        if message == "run":
+            try:
+                print ("run------")
+                index = int(sys.argv[2]) - 1
+                with open(command_history_path, "r") as f:
+                    history = json.load(f)
+                if 0 <= index < len(history):
+                    command = history[index]
+                    print(Fore.CYAN + f"Running [#{index+1}]: {command}")
+                    run_command(command)
+                else:
+                    print(Fore.RED + "Invalid command number.")
+            except (IndexError, ValueError):
+                print(Fore.RED + "Usage: run <command#>")
+            return
+
+        if message == "--model":
+            new_model = sys.argv[2]
+            if new_model in list_available_models():
+                model = new_model
+                config["model"] = model
+                with open(config_path, "w") as f:
+                    json.dump(config, f)
+                print(Fore.CYAN + "Model set to: " + model)
+            else:
+                print(Fore.RED + "Model not found.")
+            exit()
+        if message == "set-key":
+            key = sys.argv[2]
+            if key.startswith("sk"):
+                with open(env_file_path,"w") as f:
+                    f.write(f'OPENAI_KEY={key}')
+            else:
+                print(Fore.RED+"Invalid key.")
+            exit()
     if argc > 2:
         message = " ".join(sys.argv[1:])
     print("message: " + message + "\n")
