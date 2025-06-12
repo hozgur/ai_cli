@@ -1,1 +1,0 @@
-@python f:/dev/ait/ai_cli/app.py %*

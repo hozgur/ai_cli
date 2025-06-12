@@ -1,2 +1,0 @@
-#!/bin/bash
-python ~/dev/deeplearning/ai_cli/app.py "$@"
