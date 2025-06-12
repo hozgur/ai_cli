@@ -128,7 +128,7 @@ def usage():
 
 def list_available_models():
     try:
-        models = openai.models.list()
+        models = client.models.list()
         return [model.id for model in models]
     except Exception as e:
         print(f"Error fetching models: {e}")
