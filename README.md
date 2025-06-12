@@ -10,7 +10,7 @@ ai_cli, OpenAI API kullanarak yazdığınız komut isteğini uygun şekilde çal
    ```bash
    pip install -r requirements.txt
    ```
-4. `.env` dosyası oluşturun ve OpenAI anahtarını girin:
+4. `.env` dosyası oluşturun ve OpenAI anahtarını girin ya da sonradan `ask set-key ANAHTAR` komutu ile de kaydedebilirsiniz :
    ```
    OPENAI_KEY=sk-<anahtar>
    ```
@@ -25,7 +25,7 @@ Betikler `ask` komutunu doğrudan çağırabilmeniz için kullanıcı dizininizd
 
 Terminalde şu şekilde komut verebilirsiniz:
 ```bash
-ask "~/Downloads klasöründeki tüm .png dosyalarını sil"
+ask ~/Downloads klasöründeki tüm .png dosyalarını sil
 ```
 Program önerdiği komutu gösterir ve çalıştırmak isteyip istemediğinizi sorar.
 

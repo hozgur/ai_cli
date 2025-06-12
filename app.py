@@ -12,14 +12,7 @@ from pydantic import BaseModel
 # Load environment variables
 load_dotenv()
 
-# Load the API key from the .env file
-OPENAI_KEY = os.getenv("OPENAI_KEY")
-if not OPENAI_KEY:
-    print(Fore.RED + "Error: OPENAI_KEY is not set in the .env file.")
-    sys.exit(1)
 
-# Initialize OpenAI client
-client = OpenAI(api_key=OPENAI_KEY)
 
 # Initialize colorama for colored output
 init(autoreset=True)
@@ -65,6 +58,14 @@ def run_command(command):
         print(Fore.RED + f"Command failed with error: {e}")
 
 def ask(message):
+    # Load the API key from the .env file
+    OPENAI_KEY = os.getenv("OPENAI_KEY")
+    if not OPENAI_KEY:
+        print(Fore.RED + "Error: OPENAI_KEY is not set in the .env file.")
+        sys.exit(1)
+
+    # Initialize OpenAI client
+    client = OpenAI(api_key=OPENAI_KEY)    
     messages = [
         {"role": "system", "content": system_prompt},
         {"role": "user", "content": message}
