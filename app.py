@@ -122,15 +122,15 @@ def ask(message):
 
 def usage():
     print(Fore.GREEN + "Usage: ask [message]")
-    print(Fore.GREEN + "Example: ask 'delete png files on my ~/images folder'")
+    print(Fore.GREEN + "Example:" + Fore.CYAN + " ask delete png files on my ~/images folder" + Fore.GREEN)
     print(Fore.GREEN + "If you want to reset the last message and response, run:" + Fore.CYAN + " ask new" + Fore.GREEN)
     print(Fore.GREEN + "If you want to run the a command from command history, run:" + Fore.CYAN + " ask run [command_number]" + Fore.GREEN)
     print(Fore.GREEN + "If you want to see the command history, run:" + Fore.CYAN + " ask last" + Fore.GREEN)
     print(Fore.GREEN + "If you want to see the usage, run:" + Fore.CYAN + " ask help" + Fore.GREEN)
     print(Fore.GREEN + "If you want to see the version, run:" + Fore.CYAN + " ask version")
     print(Fore.GREEN + "If you want to see current model, run:" + Fore.CYAN + " ask model")
-    print(Fore.GREEN + "If you want to see available models, run:" + Fore.CYAN + " ask models")
-    print(Fore.GREEN + "If you want to change the model, run:" + Fore.CYAN + " ask --model [model_name]")
+    print(Fore.GREEN + "If you want to change the model, run:" + Fore.CYAN + " ask model [model_name]")
+    print(Fore.GREEN + "If you want to see available models, run:" + Fore.CYAN + " ask models")    
     print(Fore.GREEN + "If you want to set OpenAI API key, run:" + Fore.CYAN + " ask set-key [openai_key]" + Fore.RESET)
 
 def list_available_models():
@@ -153,6 +153,7 @@ def update_command_history(command):
         json.dump(history, f, indent=2)
 
 def main():
+    global model
     argc = len(sys.argv)
     if argc < 2:
         usage()
@@ -224,7 +225,7 @@ def main():
                 print(Fore.RED + "Usage: run <command#>")
             return
 
-        if message == "--model":
+        if message == "model":
             new_model = sys.argv[2]
             if new_model in list_available_models():
                 model = new_model

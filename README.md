@@ -34,8 +34,8 @@ Bazı yardımcı komutlar:
 - `ask run` – son komutu tekrar çalıştırır.
 - `ask last` – son on komutu listeler.
 - `ask model` – kullanılan modeli gösterir.
+- `ask model MODEL_ADI` – modeli değiştirir.
 - `ask models` – mevcut modelleri listeler.
-- `ask --model MODEL_ADI` – modeli değiştirir.
 - `ask set-key ANAHTAR` – OpenAI anahtarını kaydeder.
 
 ## Lisans
