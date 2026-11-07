@@ -135,7 +135,12 @@ def make_client():
 
 # System prompt template
 system_prompt_template = "You are a CLI command creator for {os}. If you need to add a description, keep it short and simple. Otherwise, only the command, no description."
-os_display_names = {"Windows": "Windows", "Darwin": "macOS", "Linux": "Linux"}
+# subprocess.run(shell=True) uses cmd.exe on Windows and /bin/sh elsewhere, so ask for that syntax
+os_display_names = {
+    "Windows": "Windows. The command runs in cmd.exe; when PowerShell is needed, wrap it as: powershell -NoProfile -Command \"...\"",
+    "Darwin": "macOS. The command runs in /bin/sh",
+    "Linux": "Linux. The command runs in /bin/sh",
+}
 os_name = platform.system()
 os_display_name = os_display_names.get(os_name, None)
 
